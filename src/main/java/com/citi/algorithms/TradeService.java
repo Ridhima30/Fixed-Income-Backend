@@ -208,7 +208,7 @@ public class TradeService {
 	            return (int) (object1.getDate().compareTo(object2.getDate()));
 	        }
 	    });
-		System.out.println("complete");
+		//System.out.println("complete");
 		return tradelist;
 	}
 
@@ -285,6 +285,14 @@ public class TradeService {
 								newTrade.getDate(), newTrade.getTradetype(), newTrade.getFaceValue(), newTrade.getCouponRate(),
 								newTrade.getCouponpaymentdate(), newTrade.getMaturity(), newTrade.getDcc(), newTrade.getBonusdate()));
 				  tradelist.add(newTrade);
+				  
+				  Collections.sort(tradelist, new Comparator<Trade>() {
+				        @Override
+				        public int compare(Trade object1, Trade object2) {
+				            return (int) (object1.getDate().compareTo(object2.getDate()));
+				        }
+				    });
+				  
 			      return new ResponseEntity<>(trader, HttpStatus.CREATED);
 			    } catch (Exception e) {
 			    	System.out.println(e);

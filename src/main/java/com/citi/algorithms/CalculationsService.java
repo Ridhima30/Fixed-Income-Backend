@@ -21,7 +21,7 @@ public class CalculationsService {
 	Logger logger = LoggerFactory.getLogger(CalculationsService.class);
 	
 	//COUPON INCOME CALCULATION FUNCTION
-	public Map<String, Double> Couponincome(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) {
+	public Map<String, Double> Couponincome(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) { 
 		
 		logger.debug("############# INSIDE COUPON INCOME CALCULATION FUNCTION #############");
 		
@@ -582,4 +582,70 @@ public class CalculationsService {
 		return mvalue;
 	}
 
+	//CLOSING QUANTITY OF SECURITIES CALCULATION FUNCTION
+	public Map<String, Integer> getClosingQty(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) { 
+			
+			logger.debug("############# INSIDE CLOSING QUANTITY OF SECURITIES CALCULATION FUNCTION #############");
+			
+			int i = 0;
+
+			Map<String, Integer> closingQty = new HashMap<>();
+			int k = 0;
+			String bonussecurity = null;
+			while (k < masterdb.size()) {
+				if (masterdb.get(k).getBonusdate() != null) {
+					bonussecurity = masterdb.get(k).getSecurityname();
+				}
+				k++;
+			}
+
+			while (i < masterdb.size()) {
+				FixedIncomeSecurity currentsecurity = masterdb.get(i);
+				String securityname = currentsecurity.getSecurityname();
+				int netqty = currentsecurity.getOpeningqty();
+				int qty = 0;
+				int bonusqty = 0;
+				GregorianCalendar bonusdate = currentsecurity.getBonusdate();
+
+				int j = 0;
+				while (j < tradelist.size() && currentsecurity.getCouponpaymentdate() != null) {
+					GregorianCalendar coupondate = currentsecurity.getCouponpaymentdate();
+					Trade trade = new Trade();
+					trade = tradelist.get(j);
+					if (trade.getSecurityname().equalsIgnoreCase(bonussecurity) && trade.getDate().before(bonusdate)
+							&& bonusdate.before(coupondate)) {
+						String tradetype = trade.getTradetype();
+						bonusqty = currentsecurity.getOpeningqty();
+						if (tradetype.equalsIgnoreCase("buy")) {
+							bonusqty = bonusqty + trade.getQuantity();
+						}
+						if (tradetype.equalsIgnoreCase("sell")) {
+							bonusqty = bonusqty - trade.getQuantity();
+						}
+					}
+					if (trade.getSecurityname().equalsIgnoreCase(securityname) && trade.getDate().before(coupondate)) {
+						String tradetype = trade.getTradetype();
+						if (tradetype.equalsIgnoreCase("buy")) {
+							netqty = netqty + trade.getQuantity();
+						}
+						if (tradetype.equalsIgnoreCase("sell")) {
+							netqty = netqty - trade.getQuantity();
+						}
+					}
+					j++;
+				}
+
+				if (tradelist.size() != 0) {
+					if (currentsecurity.getDcc() != null) {
+						qty = (netqty + (bonusqty / 20));
+					}
+				}
+
+				closingQty.put(securityname, qty);
+				i++;
+			}
+
+			return closingQty;
+		}
+		
 }

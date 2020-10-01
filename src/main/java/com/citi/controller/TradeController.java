@@ -1,6 +1,6 @@
 package com.citi.controller;
 
-import java.util.Arrays;  
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.citi.algorithms.CalculationsService;
 import com.citi.algorithms.TradeService;
+import com.citi.entity.Date;
 import com.citi.entity.FixedIncomeSecurity;
 import com.citi.entity.RandomValueGenerator;
 import com.citi.entity.Trade;
@@ -31,10 +32,10 @@ public class TradeController {
 
 	@Autowired
 	private TradeService tradeService;
-	
+
 	@Autowired
 	private CalculationsService calculationsService;
-	
+
 	List<FixedIncomeSecurity> masterDB = Arrays.asList(
 			new FixedIncomeSecurity("IN1015467857", 100, "GOVERNMENT OF INDIA T-BILL", 0, 2020, 9, 30),
 			new FixedIncomeSecurity("INE002A14F01", 1000, "RELIANCE INDUSTRIES COMMERCIAL PAPER", 6, 2020, 02, 15, 2021,
@@ -47,104 +48,119 @@ public class TradeController {
 					"30/360"));
 
 	List<Trade> tradelist;
-	
+
 	Logger logger = LoggerFactory.getLogger(TradeController.class);
-	
+
 	RandomValueGenerator rvg = new RandomValueGenerator();
-	@GetMapping(value="/masterdb")
+
+	@GetMapping(value = "/masterdb")
 	public List<FixedIncomeSecurity> getMasterDB() {
 		logger.debug("=========  MASTER DB  =========");
 		return masterDB;
 	}
-	
-	@RequestMapping(method=RequestMethod.GET, value="/trades")
+
+	@RequestMapping(method = RequestMethod.GET, value = "/trades")
 	public ResponseEntity<List<Trade>> getAllTrades() {
 		logger.debug("=========  GET ALL TRADES  =========");
 		tradelist = tradeService.getAllTrades().getBody();
 		return tradeService.getAllTrades();
 	}
 
-	@RequestMapping(method=RequestMethod.GET, value="/trades/{id}")
+	@RequestMapping(method = RequestMethod.GET, value = "/trades/{id}")
 	public ResponseEntity<Trade> getTradeById(@PathVariable("id") long id) {
 		logger.debug("=========  GET TRADE BY ID  =========");
 		return tradeService.getTradeById(id);
 	}
 
-	
-	@RequestMapping(method=RequestMethod.GET, value="/trades/list")
+	@RequestMapping(method = RequestMethod.GET, value = "/trades/list")
 	public List<Trade> getTradeList() {
 		logger.debug("=========  GET TRADE LIST  =========");
-		 return tradelist;	
+		return tradelist;
 	}
-	
-	@RequestMapping(method=RequestMethod.POST, value="/trades/add")
+
+	@RequestMapping(method = RequestMethod.POST, value = "/trades/add")
 	public ResponseEntity<Trade> addTrade(@RequestBody Trade newTrade) {
 		logger.debug("=========  ADD NEW TRADE BY USER  =========");
 		return tradeService.addTradeByUser(tradelist, newTrade, masterDB);
 	}
-	
-	@RequestMapping(method=RequestMethod.GET, value="/couponincome")
-	public Map<String, Double> getCouponIncomes(){
+
+	@RequestMapping(method = RequestMethod.GET, value = "/couponincome")
+	public Map<String, Double> getCouponIncomes() {
 		logger.debug("=========  CALCULATING COUPON INCOME  =========");
-		return calculationsService.Couponincome(tradelist,masterDB);
-	}
-	
-	@RequestMapping(method=RequestMethod.GET, value="/acccouponincome")
-	public Map<String, Double> getAccruedCouponIncomes(){
-		logger.debug("=========  CALCULATING ACCRUED COUPON INCOME  =========");
-		return calculationsService.Accruedcouponincome(tradelist,masterDB);
-	}
-	
-	@RequestMapping(method=RequestMethod.GET, value="/closingfund")
-	public Double getClosingFund(){
-		logger.debug("=========  CALCULATING CLOSING FUND  =========");
-		return calculationsService.Closingfund(tradelist,masterDB);
+		return calculationsService.Couponincome(tradelist, masterDB);
 	}
 
-	@RequestMapping(method=RequestMethod.GET, value="/pnl")
-	public Map<String, Double> getProfitAndLoss(){
+	@RequestMapping(method = RequestMethod.GET, value = "/acccouponincome")
+	public Map<String, Double> getAccruedCouponIncomes() {
+		logger.debug("=========  CALCULATING ACCRUED COUPON INCOME  =========");
+		return calculationsService.Accruedcouponincome(tradelist, masterDB);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/closingfund")
+	public Double getClosingFund() {
+		logger.debug("=========  CALCULATING CLOSING FUND  =========");
+		return calculationsService.Closingfund(tradelist, masterDB);
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/pnl")
+	public Map<String, Double> getProfitAndLoss(@RequestBody Date date) {
 		logger.debug("=========  CALCULATING REALIZED PROFIT AND LOSS PER SECURITY  =========");
 		GregorianCalendar gc = new GregorianCalendar();
-		gc.set(Calendar.YEAR, 2020);
-		gc.set(Calendar.MONTH, 07);
-		gc.set(Calendar.DATE, 12);
-		return calculationsService.PLpersecurity(tradelist,masterDB,gc);
+		gc.set(Calendar.YEAR, date.getYear());
+		gc.set(Calendar.MONTH, date.getMonth()-1);
+		gc.set(Calendar.DATE, date.getDay());
+		return calculationsService.PLpersecurity(tradelist, masterDB, gc);
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/upnl")
-	public Map<String, Double> getUnrealisedProfitAndLoss(){
+	@RequestMapping(method = RequestMethod.GET, value = "/eoypnl")
+	public Map<String, Double> getProfitAndLoss() {
+		logger.debug("=========  CALCULATING REALIZED PROFIT AND LOSS PER SECURITY  =========");
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.set(Calendar.YEAR, 2021);
+		gc.set(Calendar.MONTH, 0);
+		gc.set(Calendar.DATE, 1);
+		return calculationsService.PLpersecurity(tradelist, masterDB, gc);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/upnl")
+	public Map<String, Double> getUnrealisedProfitAndLoss() {
 		logger.debug("=========  CALCULATING UNREALIZED PROFIT AND LOSS PER SECURITY  =========");
-		return calculationsService.UPLpersecurity(tradelist,masterDB);
+		return calculationsService.UPLpersecurity(tradelist, masterDB);
 	}
-	
-	@RequestMapping(method=RequestMethod.GET, value="/mvalue")
-	public double getMarketValuation(){
+
+	@RequestMapping(method = RequestMethod.GET, value = "/mvalue")
+	public double getMarketValuation() {
 		logger.debug("=========  CALCULATING FINAL MARKET VALUATION  =========");
 		return calculationsService.MarketValuation(tradelist, masterDB);
 	}
-	
 
-	@RequestMapping(method=RequestMethod.POST, value="/trades/all")
+	@RequestMapping(method = RequestMethod.POST, value = "/trades/all")
 	public List<Trade> createTradeList() {
 		logger.debug("=========  GENERATING INITIAL TRADES USING RANDOM GENERATOR  =========");
-		masterDB=rvg.UpdateMasterDb(masterDB);
-		int i=0;
-		while(i<masterDB.size()) {
-			if(masterDB.get(i).getBonusdate()!=null) {
-				System.out.println(masterDB.get(i).getSecurityname()+ " " + masterDB.get(i).getBonusdate());
+		masterDB = rvg.UpdateMasterDb(masterDB);
+		int i = 0;
+		while (i < masterDB.size()) {
+			if (masterDB.get(i).getBonusdate() != null) {
+				System.out.println(masterDB.get(i).getSecurityname() + " " + masterDB.get(i).getBonusdate());
 			}
 			i++;
 		}
-		
+
 		tradelist = tradeService.generateInitialTrades(masterDB);
-		
+
 		return tradelist;
 	}
-	
-	@RequestMapping(method=RequestMethod.GET, value="/logout")
-	public void userLogout(){
+
+	@RequestMapping(method = RequestMethod.GET, value = "/closingqty")
+	public Map<String, Integer> getClosingQtyOfSecurities() {
+		logger.debug("=========  CLOSING QTY OF SECURITIES  =========");
+		return calculationsService.getClosingQty(tradelist, masterDB);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/logout")
+	public void userLogout() {
 		logger.debug("=========  USER LOGOUT  =========");
 		tradelist.clear();
 	}
-	
+
 }
