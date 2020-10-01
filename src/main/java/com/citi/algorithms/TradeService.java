@@ -33,12 +33,12 @@ public class TradeService {
 	RandomValueGenerator randomTrade = new RandomValueGenerator();
 
 	Logger logger = LoggerFactory.getLogger(TradeService.class);
-	
-	//GET ALL TRADES FUNCTION
+
+	// GET ALL TRADES FUNCTION
 	public ResponseEntity<List<Trade>> getAllTrades() {
-		
+
 		logger.debug("############# INSIDE GET ALL TRADES FUNCTION #############");
-		
+
 		List<Trade> traders = new ArrayList<>();
 		try {
 			tradeRepository.findAll().forEach(traders::add);
@@ -52,11 +52,11 @@ public class TradeService {
 		}
 	}
 
-	//GET TRADE BY ID FUNCTION
+	// GET TRADE BY ID FUNCTION
 	public ResponseEntity<Trade> getTradeById(long id) {
-		
+
 		logger.debug("############# INSIDE GET TRADE BY ID FUNCTION #############");
-		
+
 		Optional<Trade> tradeData = tradeRepository.findById(id);
 
 		if (tradeData.isPresent()) {
@@ -66,11 +66,11 @@ public class TradeService {
 		}
 	}
 
-	//GENERATE INITIAL TRADES FUNCTION
+	// GENERATE INITIAL TRADES FUNCTION
 	public List<Trade> generateInitialTrades(List<FixedIncomeSecurity> masterdb) { 
 
 		logger.debug("############# INSIDE GENERATE INITIAL TRADES FUNCTION #############");
-		
+
 		List<Trade> tradelist = new ArrayList<>();
 		GregorianCalendar newyear = new GregorianCalendar();
 		newyear.set(Calendar.YEAR, 2021);
@@ -78,7 +78,7 @@ public class TradeService {
 		newyear.set(Calendar.DATE, 01);
 		System.out.println("generating trade");
 
-		for (int i = 0; i < 52; i++) {
+		for (int i = 0; i < 25; i++) {
 			System.out.println("i" + i);
 
 			FixedIncomeSecurity randomSecurity = randomTrade.RandomElement(masterdb);
@@ -116,18 +116,10 @@ public class TradeService {
 			if (maturitydate.after(date)) {
 				if (trade.getSecurityname().equalsIgnoreCase("GOVERNMENT OF INDIA T-BILL")
 						&& trade.getPrice() <= trade.getFaceValue()) {
-					Trade traderepo = tradeRepository.save(new Trade(trade.getSecurityname(), trade.getIsin(),
-							trade.getPrice(), trade.getQuantity(), trade.getDate(), trade.getTradetype(),
-							trade.getFaceValue(), trade.getCouponRate(), trade.getCouponpaymentdate(),
-							trade.getMaturity(), trade.getDcc(), trade.getBonusdate()));
 					tradelist.add(trade);
 				}
 
 				if (trade.getSecurityname() != ("GOVERNMENT OF INDIA T-BILL")) {
-					Trade traderepo = tradeRepository.save(new Trade(trade.getSecurityname(), trade.getIsin(),
-							trade.getPrice(), trade.getQuantity(), trade.getDate(), trade.getTradetype(),
-							trade.getFaceValue(), trade.getCouponRate(), trade.getCouponpaymentdate(),
-							trade.getMaturity(), trade.getDcc(), trade.getBonusdate()));
 					tradelist.add(trade);
 				}
 			}
@@ -145,7 +137,7 @@ public class TradeService {
 			}
 			k++;
 		}
-		
+
 		while (i < masterdb.size()) {
 
 			FixedIncomeSecurity security = masterdb.get(i);
@@ -159,7 +151,7 @@ public class TradeService {
 					Trade trade = new Trade();
 					trade = tradelist.get(j);
 					if (trade.getSecurityname().equalsIgnoreCase(bonussecurity) && trade.getDate().before(bonusdate)) {
-						b=security.getOpeningqty();
+						b = security.getOpeningqty();
 						String tradetype = trade.getTradetype();
 						if (tradetype.equalsIgnoreCase("buy")) {
 							b = b + trade.getQuantity();
@@ -183,7 +175,7 @@ public class TradeService {
 				trade.setSecurityname(security.getSecurityname());
 				trade.setIsin(security.getIsin());
 				trade.setPrice(security.getFaceValue());
-				trade.setQuantity(a + (b/20));
+				trade.setQuantity(a + (b / 20));
 				trade.setDate(security.getMaturitydate());
 				trade.setTradetype("Sell");
 				trade.setCouponRate(security.getCouponRate());
@@ -193,121 +185,121 @@ public class TradeService {
 				trade.setMaturity(security.getMaturitydate());
 				trade.setBonusdate(security.getBonusdate());
 
-				Trade traderepo = tradeRepository.save(new Trade(trade.getSecurityname(), trade.getIsin(),
-						trade.getPrice(), trade.getQuantity(), trade.getDate(), trade.getTradetype(),
-						trade.getFaceValue(), trade.getCouponRate(), trade.getCouponpaymentdate(), trade.getMaturity(),
-						trade.getDcc(), trade.getBonusdate()));
 				tradelist.add(trade);
 
 			}
 			i++;
 		}
 		Collections.sort(tradelist, new Comparator<Trade>() {
-	        @Override
-	        public int compare(Trade object1, Trade object2) {
-	            return (int) (object1.getDate().compareTo(object2.getDate()));
-	        }
-	    });
-		//System.out.println("complete");
+			@Override
+			public int compare(Trade object1, Trade object2) {
+				return (int) (object1.getDate().compareTo(object2.getDate()));
+			}
+		});
+
+		for (int m = 0; m < tradelist.size(); m++) {
+
+			Trade trade = tradelist.get(m);
+			tradeRepository
+					.save(new Trade(trade.getSecurityname(), trade.getIsin(), trade.getPrice(), trade.getQuantity(),
+							trade.getDate(), trade.getTradetype(), trade.getFaceValue(), trade.getCouponRate(),
+							trade.getCouponpaymentdate(), trade.getMaturity(), trade.getDcc(), trade.getBonusdate()));
+
+		}
+
 		return tradelist;
 	}
+	
+	
 
-	//ADD TRADE BY USER FUNCTION
-	public ResponseEntity<Trade> addTradeByUser(List<Trade> tradelist, Trade newTrade, List<FixedIncomeSecurity> masterDB) {
-		
+	// ADD TRADE BY USER FUNCTION
+	public ResponseEntity<Trade> addTradeByUser(List<Trade> tradelist, Trade newTrade,
+			List<FixedIncomeSecurity> masterDB) {
+
 		logger.debug("############# INSIDE ADD TRADE BY USER FUNCTION #############");
-		
+
 		int openfund = masterDB.get(0).getOpeningfund();
 		int opensecurity = 10000;
-		int i=0;
-		while(i<masterDB.size()) {
-			if(masterDB.get(i).getSecurityname().equalsIgnoreCase(newTrade.getSecurityname()))
-				opensecurity=masterDB.get(i).getOpeningqty();
+		int i = 0;
+		while (i < masterDB.size()) {
+			if (masterDB.get(i).getSecurityname().equalsIgnoreCase(newTrade.getSecurityname()))
+				opensecurity = masterDB.get(i).getOpeningqty();
 			i++;
 		}
-		
+
 		int currentfund = openfund;
 		String TradeSecurity = newTrade.getSecurityname();
 		int Count = opensecurity;
 		Iterable<Trade> it = tradeRepository.findAll();
 		for (Trade element : it) {
-			
-			if(element.getDate().after(newTrade.getDate()))
-			{
+
+			if (element.getDate().after(newTrade.getDate())) {
 				break;
 			}
-			if(element.getDate().before(newTrade.getDate()))
-			{
-				
-				if(newTrade.getTradetype().equalsIgnoreCase("sell"))
-				{
-					currentfund+=element.getPrice()*element.getQuantity();
+			if (element.getDate().before(newTrade.getDate())) {
+
+				if (newTrade.getTradetype().equalsIgnoreCase("sell")) {
+					currentfund += element.getPrice() * element.getQuantity();
 				}
-				
-				if(newTrade.getTradetype().equalsIgnoreCase("buy"))
-				{
-					currentfund-=element.getPrice()*element.getQuantity();
+
+				if (newTrade.getTradetype().equalsIgnoreCase("buy")) {
+					currentfund -= element.getPrice() * element.getQuantity();
 				}
-				
-				if(newTrade.getSecurityname().equalsIgnoreCase(TradeSecurity))
-				{
-					if(newTrade.getTradetype().equalsIgnoreCase("sell"))
-					{
-						Count-=newTrade.getQuantity();
+
+				if (newTrade.getSecurityname().equalsIgnoreCase(TradeSecurity)) {
+					if (newTrade.getTradetype().equalsIgnoreCase("sell")) {
+						Count -= newTrade.getQuantity();
 					}
-					
-					if(newTrade.getTradetype().equalsIgnoreCase("buy"))
-					{
-						Count+=newTrade.getQuantity();
+
+					if (newTrade.getTradetype().equalsIgnoreCase("buy")) {
+						Count += newTrade.getQuantity();
 					}
-				}	
+				}
 			}
 		}
-		
+
 		int Allow = 0;
-		if(newTrade.getTradetype().equalsIgnoreCase("buy") && currentfund>(newTrade.getPrice()*newTrade.getQuantity())) {
+		if (newTrade.getTradetype().equalsIgnoreCase("buy")
+				&& currentfund > (newTrade.getPrice() * newTrade.getQuantity())) {
 			Allow = 1;
 		}
-		if(newTrade.getTradetype().equalsIgnoreCase("sell") && newTrade.getQuantity()<Count) {
+		if (newTrade.getTradetype().equalsIgnoreCase("sell") && newTrade.getQuantity() < Count) {
 			Allow = 1;
 		}
-		
+
 		System.out.println(Allow);
-		
+
 		System.out.println(tradelist);
-		
-		if (Allow==1)
-		{
+
+		if (Allow == 1) {
 			try {
 				System.out.println(tradelist);
-				Trade trader = tradeRepository
-						.save(new Trade(newTrade.getSecurityname(), newTrade.getIsin(), newTrade.getPrice(), newTrade.getQuantity(),
-								newTrade.getDate(), newTrade.getTradetype(), newTrade.getFaceValue(), newTrade.getCouponRate(),
-								newTrade.getCouponpaymentdate(), newTrade.getMaturity(), newTrade.getDcc(), newTrade.getBonusdate()));
-				  tradelist.add(newTrade);
-				  
-				  Collections.sort(tradelist, new Comparator<Trade>() {
-				        @Override
-				        public int compare(Trade object1, Trade object2) {
-				            return (int) (object1.getDate().compareTo(object2.getDate()));
-				        }
-				    });
-				  
-			      return new ResponseEntity<>(trader, HttpStatus.CREATED);
-			    } catch (Exception e) {
-			    	System.out.println(e);
-			      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-			    }
-		}
-		else
-		{
+				Trade trader = tradeRepository.save(new Trade(newTrade.getSecurityname(), newTrade.getIsin(),
+						newTrade.getPrice(), newTrade.getQuantity(), newTrade.getDate(), newTrade.getTradetype(),
+						newTrade.getFaceValue(), newTrade.getCouponRate(), newTrade.getCouponpaymentdate(),
+						newTrade.getMaturity(), newTrade.getDcc(), newTrade.getBonusdate()));
+				tradelist.add(newTrade);
+
+				Collections.sort(tradelist, new Comparator<Trade>() {
+					@Override
+					public int compare(Trade object1, Trade object2) {
+						return (int) (object1.getDate().compareTo(object2.getDate()));
+					}
+				});
+
+				return new ResponseEntity<>(trader, HttpStatus.CREATED);
+			} catch (Exception e) {
+				System.out.println(e);
+				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} else {
 			return new ResponseEntity<>(null);
 		}
-		
+
 	}
 
 	public void deleteDB(List<Trade> tradelist) {
-		
+
 		tradeRepository.deleteAll();
 	}
 

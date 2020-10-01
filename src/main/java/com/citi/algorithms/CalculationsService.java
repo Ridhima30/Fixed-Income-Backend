@@ -217,75 +217,8 @@ public class CalculationsService {
 
 	}
 
-// public Map<String, Double> PLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb)
-//
-// {
-// int i = 0;
-// int k = 0;
-// String bonussecurity = null;
-// while (k < masterdb.size()) {
-// if (masterdb.get(k).getBonusdate() != null) {
-// bonussecurity = masterdb.get(k).getSecurityname();
-// }
-// k++;
-// }
-//
-// double finalprice = 0;
-// double ufinalprice = 0;
-// Map<String, Double> allPLS = new HashMap<>();
-// while (i < masterdb.size()) {
-// FixedIncomeSecurity currentsecurity = masterdb.get(i);
-// int netbuyqty = currentsecurity.getOpeningqty();
-// double netbuyprice = (currentsecurity.getOpeningqty() * currentsecurity.getOpeningprice());
-// int netsellqty = 0;
-// double finalmp = currentsecurity.getFinalprice();
-// int bonusqty = 0;
-// GregorianCalendar bonusdate = currentsecurity.getBonusdate();
-//
-// double netsellprice = 0;
-// int j = 0;
-// String securityname = masterdb.get(i).getSecurityname();
-// while (j < tradelist.size()) {
-// Trade trade = new Trade();
-// trade = tradelist.get(j);
-// if (trade.getSecurityname().equalsIgnoreCase(bonussecurity) && trade.getDate().before(bonusdate)) {
-// bonusqty = currentsecurity.getOpeningqty();
-// String tradetype = trade.getTradetype();
-// if (tradetype.equalsIgnoreCase("buy")) {
-// bonusqty = bonusqty + trade.getQuantity();
-// }
-// if (tradetype.equalsIgnoreCase("sell")) {
-// bonusqty = bonusqty - trade.getQuantity();
-// }
-// }
-// if (trade.getSecurityname().equalsIgnoreCase(securityname)) {
-// String tradetype = trade.getTradetype();
-// if (tradetype.equalsIgnoreCase("buy")) {
-// netbuyprice = netbuyprice + (trade.getQuantity() * trade.getPrice());
-// netbuyqty = netbuyqty + trade.getQuantity();
-// }
-// if (tradetype.equalsIgnoreCase("sell")) {
-// netsellprice = netsellprice + (trade.getQuantity() * trade.getPrice());
-// netsellqty = netsellqty + trade.getQuantity();
-// }
-// }
-// j++;
-// }
-//
-// if (netsellqty == 0)
-// finalprice = 0;
-// else
-// finalprice = ((netsellprice / netsellqty) - (netbuyprice / (netbuyqty + bonusqty))) * (netsellqty);
-//
-// allPLS.put(securityname, finalprice);
-// i++;
-// }
-//
-// return allPLS;
-// }
-
 	//PROFIT AND LOSS CALCULATION FUNCTION
-	public Map<String, Double> PLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb,
+	public Map<String, Double> PLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb,  
 			GregorianCalendar entereddate){
 		
 		logger.debug("############# INSIDE PROFIT AND LOSS CALCULATION FUNCTION #############");
@@ -356,72 +289,6 @@ public class CalculationsService {
 		return allPLS;
 	}
 
-// public Map<String, Double> UPLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb)
-//
-// {
-// int i = 0;
-// GregorianCalendar newyear = new GregorianCalendar();
-// newyear.set(Calendar.YEAR, 2021);
-// newyear.set(Calendar.MONTH, 0);
-// newyear.set(Calendar.DATE, 01);
-// int k = 0;
-// String bonussecurity = null;
-// while (k < masterdb.size()) {
-// if (masterdb.get(k).getBonusdate() != null) {
-// bonussecurity = masterdb.get(k).getSecurityname();
-// }
-// k++;
-// }
-// double finalprice = 0;
-// double ufinalprice = 0;
-// Map<String, Double> UallPLS = new HashMap<>();
-// while (i < masterdb.size()) {
-// FixedIncomeSecurity currentsecurity = masterdb.get(i);
-// int netbuyqty = currentsecurity.getOpeningqty();
-// double netbuyprice = (currentsecurity.getOpeningqty() * currentsecurity.getOpeningprice());
-// int netsellqty = 0;
-// double finalmp = currentsecurity.getFinalprice();
-// int bonusqty = 0;
-// GregorianCalendar bonusdate = currentsecurity.getBonusdate();
-//
-// double netsellprice = 0;
-// int j = 0;
-// String securityname = masterdb.get(i).getSecurityname();
-// while (j < tradelist.size()) {
-// Trade trade = new Trade();
-// trade = tradelist.get(j);
-// if (trade.getSecurityname().equalsIgnoreCase(bonussecurity) && trade.getDate().before(bonusdate)) {
-// bonusqty = currentsecurity.getOpeningqty();
-// String tradetype = trade.getTradetype();
-// if (tradetype.equalsIgnoreCase("buy")) {
-// bonusqty = bonusqty + trade.getQuantity();
-// }
-// if (tradetype.equalsIgnoreCase("sell")) {
-// bonusqty = bonusqty - trade.getQuantity();
-// }
-// }
-// if (trade.getSecurityname().equalsIgnoreCase(securityname)) {
-// String tradetype = trade.getTradetype();
-// if (tradetype.equalsIgnoreCase("buy")) {
-// netbuyprice = netbuyprice + (trade.getQuantity() * trade.getPrice());
-// netbuyqty = netbuyqty + trade.getQuantity();
-// }
-// if (tradetype.equalsIgnoreCase("sell")) {
-// netsellprice = netsellprice + (trade.getQuantity() * trade.getPrice());
-// netsellqty = netsellqty + trade.getQuantity();
-// }
-// }
-// j++;
-// }
-//
-// finalprice = ((netbuyqty + bonusqty - netsellqty) * (finalmp - (netbuyprice / (netbuyqty + bonusqty))));
-// UallPLS.put(securityname, finalprice);
-// i++;
-// }
-//
-// return UallPLS;
-// }
-//
 	//UNREALIZED PROFIT AND LOSS CALCULATION FUNCTION
 	public Map<String, Double> UPLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb){
 		
@@ -490,7 +357,7 @@ public class CalculationsService {
 	}
 
 	//CLOSING FUND CALCULATION FUNCTION
-	public double Closingfund(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) {
+	public double Closingfund(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb, GregorianCalendar gc) {
 		
 		logger.debug("############# INSIDE CLOSING FUND CALCULATION FUNCTION #############");
 		
@@ -510,15 +377,29 @@ public class CalculationsService {
 		while (i < tradelist.size()) {
 			Trade trade = new Trade();
 			trade = tradelist.get(i);
-			String tradetype = trade.getTradetype();
-			if (tradetype.equalsIgnoreCase("buy")) {
-				fund = fund - (trade.getQuantity() * trade.getPrice());
+			
+			if(trade.getDate().before(gc)) {
+				String tradetype = trade.getTradetype();
+				if (tradetype.equalsIgnoreCase("buy")) {
+					fund = fund - (trade.getQuantity() * trade.getPrice());
+				}
+				if (tradetype.equalsIgnoreCase("sell")) {
+					fund = fund + (trade.getQuantity() * trade.getPrice());
+				}
 			}
-			if (tradetype.equalsIgnoreCase("sell")) {
-				fund = fund + (trade.getQuantity() * trade.getPrice());
-			}
+			
 			i++;
 		}
+		
+		GregorianCalendar gc2 = new GregorianCalendar();
+		gc2.set(Calendar.YEAR, 2021);
+		gc2.set(Calendar.MONTH, 0);
+		gc2.set(Calendar.DATE, 1);
+		
+		if(!gc.equals(gc2)) {
+			fund = fund-a;
+		}
+		
 		return fund;
 	}
 
@@ -545,6 +426,7 @@ public class CalculationsService {
 			FixedIncomeSecurity currentsecurity = masterdb.get(i);
 			int netqty = currentsecurity.getOpeningqty();
 			double finalmp = currentsecurity.getFinalprice();
+			
 			int bonusqty = 0;
 			GregorianCalendar bonusdate = currentsecurity.getBonusdate();
 
@@ -583,7 +465,7 @@ public class CalculationsService {
 	}
 
 	//CLOSING QUANTITY OF SECURITIES CALCULATION FUNCTION
-	public Map<String, Integer> getClosingQty(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) { 
+	public Map<String, Integer> getClosingQty(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) {  
 			
 			logger.debug("############# INSIDE CLOSING QUANTITY OF SECURITIES CALCULATION FUNCTION #############");
 			

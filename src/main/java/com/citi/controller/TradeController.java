@@ -98,11 +98,28 @@ public class TradeController {
 		return calculationsService.Accruedcouponincome(tradelist, masterDB);
 	}
 
+	//Get current fund at a particular date
+	@RequestMapping(method = RequestMethod.POST, value = "/closingfund")
+	public Double getCurrFunds(@RequestBody Date date) {
+		logger.debug("=========  CALCULATING CURRENT FUND  =========");
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.set(Calendar.YEAR, date.getYear());
+		gc.set(Calendar.MONTH, date.getMonth()-1);
+		gc.set(Calendar.DATE, date.getDay());
+		System.out.println(gc);
+		return calculationsService.Closingfund(tradelist, masterDB, gc);
+	}
+	
 	//Get closing fund at the end of the year
-	@RequestMapping(method = RequestMethod.GET, value = "/closingfund")
+	@RequestMapping(method = RequestMethod.GET, value = "/eoyclosingfund")
 	public Double getClosingFund() {
 		logger.debug("=========  CALCULATING CLOSING FUND  =========");
-		return calculationsService.Closingfund(tradelist, masterDB);
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.set(Calendar.YEAR, 2021);
+		gc.set(Calendar.MONTH, 0);
+		gc.set(Calendar.DATE, 1);
+		System.out.println(gc);
+		return calculationsService.Closingfund(tradelist, masterDB, gc);
 	}
 
 	//Get realised profit and loss per security on a particular date
