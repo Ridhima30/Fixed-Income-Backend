@@ -306,4 +306,9 @@ public class TradeService {
 		
 	}
 
+	public void deleteDB(List<Trade> tradelist) {
+		
+		tradeRepository.deleteAll();
+	}
+
 }
