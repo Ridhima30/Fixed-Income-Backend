@@ -78,7 +78,7 @@ public class TradeService {
 		newyear.set(Calendar.DATE, 01);
 		System.out.println("generating trade");
 
-		for (int i = 0; i < 12; i++) {
+		for (int i = 0; i < 52; i++) {
 			System.out.println("i" + i);
 
 			FixedIncomeSecurity randomSecurity = randomTrade.RandomElement(masterdb);

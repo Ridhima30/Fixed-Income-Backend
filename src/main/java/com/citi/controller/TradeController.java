@@ -1,5 +1,6 @@
 package com.citi.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -37,16 +38,9 @@ public class TradeController {
 	@Autowired
 	private CalculationsService calculationsService;
 
-	List<FixedIncomeSecurity> masterDB = Arrays.asList(
-			new FixedIncomeSecurity("IN1015467857", 100, "GOVERNMENT OF INDIA T-BILL", 0, 2020, 9, 30),
-			new FixedIncomeSecurity("INE002A14F01", 1000, "RELIANCE INDUSTRIES COMMERCIAL PAPER", 6, 2020, 02, 15, 2021,
-					02, 15, "a/360"),
-			new FixedIncomeSecurity("INE002A14F02", 1000, "STATE BANK OF INDIA CD", 4, 2020, 06, 30, 2021, 04, 30,
-					"a/365"),
-			new FixedIncomeSecurity("INE002A14F03", 1000, "ABG SHIPYARD LTD. DEBENTURE", 5, 2020, 04, 10, 2026, 8, 10,
-					"a/366"),
-			new FixedIncomeSecurity("INE002A14F04", 100, "GOVERNMENT OF INDIA BOND", 4.5f, 2020, 10, 25, 2021, 06, 27,
-					"30/360"));
+	List<FixedIncomeSecurity> masterDB = new ArrayList<>();
+			
+			
 
 	List<Trade> tradelist;
 
@@ -151,9 +145,23 @@ public class TradeController {
 	@RequestMapping(method = RequestMethod.POST, value = "/trades/all")
 	public List<Trade> createTradeList() {
 		logger.debug("=========  GENERATING INITIAL TRADES USING RANDOM GENERATOR  =========");
+		masterDB = Arrays.asList(
+				new FixedIncomeSecurity("IN1015467857", 100, "GOVERNMENT OF INDIA T-BILL", 0, 2020, 9, 30),
+				new FixedIncomeSecurity("INE002A14F01", 1000, "RELIANCE INDUSTRIES COMMERCIAL PAPER", 6, 2020, 02, 15, 2021,
+						02, 15, "a/360"),
+				new FixedIncomeSecurity("INE002A14F02", 1000, "STATE BANK OF INDIA CD", 4, 2020, 06, 30, 2021, 04, 30,
+						"a/365"),
+				new FixedIncomeSecurity("INE002A14F03", 1000, "ABG SHIPYARD LTD. DEBENTURE", 5, 2020, 04, 10, 2026, 8, 10,
+						"a/366"),
+				new FixedIncomeSecurity("INE002A14F04", 100, "GOVERNMENT OF INDIA BOND", 4.5f, 2020, 10, 25, 2021, 06, 27,
+						"30/360"));
 		masterDB = rvg.UpdateMasterDb(masterDB);
+				
 		int i = 0;
 		while (i < masterDB.size()) {
+			
+			System.out.println(masterDB.get(i) + "  PRICE: "+masterDB.get(i).getOpeningprice()+ "  qty: "+masterDB.get(i).getOpeningqty() );
+			
 			if (masterDB.get(i).getBonusdate() != null) {
 				System.out.println(masterDB.get(i).getSecurityname() + " " + masterDB.get(i).getBonusdate());
 			}

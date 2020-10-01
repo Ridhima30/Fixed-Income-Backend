@@ -153,13 +153,13 @@ public class FixedIncomeSecurity {
 		this.maturitydate = gc;
 		this.couponRate = couponRate;
 		RandomValueGenerator rvg = new RandomValueGenerator();
-		int finalopeningprice =0 ;
-		while(rvg.RandomPriceCalculator(faceValue) > faceValue)
+		int finalopeningprice =rvg.RandomPriceCalculator(faceValue) ;
+		while( finalopeningprice > faceValue)
 		{
 			finalopeningprice = rvg.RandomPriceCalculator(faceValue);
 		}
 		this.openingprice =finalopeningprice;
-		this.finalprice = rvg.RandomPriceCalculator(faceValue);
+		this.finalprice = 0;
 		this.openingqty = rvg.RandomOpeningQuantityCalculator();
 		this.bonusdate = null;
 		this.openingfund=0;
