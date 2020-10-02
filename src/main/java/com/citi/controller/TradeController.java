@@ -100,14 +100,9 @@ public class TradeController {
 
 	//Get current fund at a particular date
 	@RequestMapping(method = RequestMethod.POST, value = "/closingfund")
-	public Double getCurrFunds(@RequestBody Date date) {
+	public Double getCurrFunds(@RequestBody GregorianCalendar date) {
 		logger.debug("=========  CALCULATING CURRENT FUND  =========");
-		GregorianCalendar gc = new GregorianCalendar();
-		gc.set(Calendar.YEAR, date.getYear());
-		gc.set(Calendar.MONTH, date.getMonth()-1);
-		gc.set(Calendar.DATE, date.getDay());
-		System.out.println(gc);
-		return calculationsService.Closingfund(tradelist, masterDB, gc);
+		return calculationsService.Closingfund(tradelist, masterDB, date);
 	}
 	
 	//Get closing fund at the end of the year
@@ -124,13 +119,9 @@ public class TradeController {
 
 	//Get realised profit and loss per security on a particular date
 	@RequestMapping(method = RequestMethod.POST, value = "/pnl")
-	public Map<String, Double> getProfitAndLoss(@RequestBody Date date) {
+	public Map<String, Double> getProfitAndLoss(@RequestBody GregorianCalendar date) {
 		logger.debug("=========  CALCULATING REALIZED PROFIT AND LOSS PER SECURITY  =========");
-		GregorianCalendar gc = new GregorianCalendar();
-		gc.set(Calendar.YEAR, date.getYear());
-		gc.set(Calendar.MONTH, date.getMonth()-1);
-		gc.set(Calendar.DATE, date.getDay());
-		return calculationsService.PLpersecurity(tradelist, masterDB, gc);
+		return calculationsService.PLpersecurity(tradelist, masterDB, date);
 	}
 	
 	//Get realised profit and loss per security at the end of the year
