@@ -211,69 +211,134 @@ public class TradeService {
 	}
 	
 	
-
 	// ADD TRADE BY USER FUNCTION
 	public ResponseEntity<Trade> addTradeByUser(List<Trade> tradelist, Trade newTrade,
 			List<FixedIncomeSecurity> masterDB) {
 
 		logger.debug("############# INSIDE ADD TRADE BY USER FUNCTION #############");
-
-		int openfund = masterDB.get(0).getOpeningfund();
-		int opensecurity = 10000;
-		int i = 0;
-		while (i < masterDB.size()) {
-			if (masterDB.get(i).getSecurityname().equalsIgnoreCase(newTrade.getSecurityname()))
-				opensecurity = masterDB.get(i).getOpeningqty();
-			i++;
-		}
-
-		int currentfund = openfund;
-		String TradeSecurity = newTrade.getSecurityname();
-		int Count = opensecurity;
-		Iterable<Trade> it = tradeRepository.findAll();
-		for (Trade element : it) {
-
-			if (element.getDate().after(newTrade.getDate())) {
-				break;
-			}
-			if (element.getDate().before(newTrade.getDate())) {
-
-				if (newTrade.getTradetype().equalsIgnoreCase("sell")) {
-					currentfund += element.getPrice() * element.getQuantity();
-				}
-
-				if (newTrade.getTradetype().equalsIgnoreCase("buy")) {
-					currentfund -= element.getPrice() * element.getQuantity();
-				}
-
-				if (newTrade.getSecurityname().equalsIgnoreCase(TradeSecurity)) {
-					if (newTrade.getTradetype().equalsIgnoreCase("sell")) {
-						Count -= newTrade.getQuantity();
-					}
-
-					if (newTrade.getTradetype().equalsIgnoreCase("buy")) {
-						Count += newTrade.getQuantity();
-					}
-				}
-			}
-		}
-
+		
+		
 		int Allow = 0;
-		if (newTrade.getTradetype().equalsIgnoreCase("buy")
-				&& currentfund > (newTrade.getPrice() * newTrade.getQuantity())) {
-			Allow = 1;
+		int openfund = masterDB.get(0).getOpeningfund();
+		int opensecurity = 0;
+		int i = 0;
+		if(newTrade.getSecurityname().equalsIgnoreCase("GOVERNMENT OF INDIA T-BILL") && newTrade.getDate().after(newTrade.getMaturity()))
+		{
+			
+				Allow = 0;
+				System.out.println("NOT ALLOWED AS SELLING AFTER MATURITY");
+			
+		
 		}
-		if (newTrade.getTradetype().equalsIgnoreCase("sell") && newTrade.getQuantity() < Count) {
-			Allow = 1;
+		else 
+		{
+			while (i < masterDB.size()) {
+				if (masterDB.get(i).getSecurityname().equalsIgnoreCase(newTrade.getSecurityname()))
+					opensecurity = masterDB.get(i).getOpeningqty();
+				i++;
+				System.out.println("Got opening security"+opensecurity);
+			}
+	
+			int currentfund = openfund;
+			int Count = opensecurity;
+			System.out.println("Opensing Security"+Count);
+			Iterable<Trade> it = tradeRepository.findAll();
+			for (Trade element : it) {
+				String TradeSecurity = element.getSecurityname();
+				if (element.getDate().after(newTrade.getDate())) {
+					//ignore
+				}
+				if (element.getDate().before(newTrade.getDate())) {
+	
+					if (newTrade.getTradetype().equalsIgnoreCase("sell")) {
+						currentfund += element.getPrice() * element.getQuantity();
+					}
+	
+					if (newTrade.getTradetype().equalsIgnoreCase("buy")) {
+						currentfund -= element.getPrice() * element.getQuantity();
+					}
+	
+					if (newTrade.getSecurityname().equalsIgnoreCase(TradeSecurity)) {
+						if (newTrade.getTradetype().equalsIgnoreCase("sell")) {
+							Count -= newTrade.getQuantity();
+						}
+	
+						if (newTrade.getTradetype().equalsIgnoreCase("buy")) {
+							Count += newTrade.getQuantity();
+						}
+					}
+				}
+				System.out.println("current Security"+Count);
+			}
+	
+			
+			if (newTrade.getTradetype().equalsIgnoreCase("buy")
+					&& currentfund > (newTrade.getPrice() * newTrade.getQuantity())) {
+				Allow = 1;
+			}
+			if (newTrade.getTradetype().equalsIgnoreCase("sell") && newTrade.getQuantity() < Count) {
+				Allow = 1;
+			}			
+		}
+		
+		if (Allow == 1)
+		{
+			
+			if (newTrade.getSecurityname().equalsIgnoreCase("GOVERNMENT OF INDIA T-BILL"))
+			{
+				System.out.println("ALLOWED T-BILL UPDATE TRADE ON MATURITY");
+				Iterable<Trade> it2 = tradeRepository.findAll();
+				for (Trade element2 : it2) {
+					if(element2.getDate().get(Calendar.MONTH)==9 && element2.getDate().get(Calendar.DATE)==30 && element2.getSecurityname().equalsIgnoreCase("GOVERNMENT OF INDIA T-BILL"))
+					{
+						System.out.println("FOUND the MATURITY TRADE");
+						if(newTrade.getTradetype().equalsIgnoreCase("sell"))
+						{
+							element2.setQuantity(element2.getQuantity()-newTrade.getQuantity());
+							Trade updateTrade = element2;
+							tradeRepository.delete(element2);
+							Trade update = tradeRepository.save(updateTrade);
+							System.out.println("UPDATED TRADE REPO");
+							
+						}
+						if(newTrade.getTradetype().equalsIgnoreCase("buy"))
+						{
+							element2.setQuantity(element2.getQuantity()+newTrade.getQuantity());
+							Trade updateTrade = element2;
+							tradeRepository.delete(element2);
+							Trade update = tradeRepository.save(updateTrade);
+							System.out.println("UPDATED TRADE REPO");
+						}
+				
+					}
+				}
+				for (Trade list : tradelist) {
+					if(list.getDate().get(Calendar.MONTH)==9 && list.getDate().get(Calendar.DATE)==30 && list.getSecurityname().equalsIgnoreCase("GOVERNMENT OF INDIA T-BILL"))
+					{
+						if(newTrade.getTradetype().equalsIgnoreCase("sell"))
+						{
+							list.setQuantity(list.getQuantity()-newTrade.getQuantity());
+							System.out.println("UPDATED TRADE list");
+							
+						}
+						if(newTrade.getTradetype().equalsIgnoreCase("buy"))
+						{
+							list.setQuantity(list.getQuantity()+newTrade.getQuantity());
+							System.out.println("UPDATED TRADE list");
+
+						}
+					}
+				}
+			}
 		}
 
 		System.out.println(Allow);
 
-		System.out.println(tradelist);
+		//System.out.println(tradelist);
 
 		if (Allow == 1) {
 			try {
-				System.out.println(tradelist);
+				//System.out.println(tradelist);
 				Trade trader = tradeRepository.save(new Trade(newTrade.getSecurityname(), newTrade.getIsin(),
 						newTrade.getPrice(), newTrade.getQuantity(), newTrade.getDate(), newTrade.getTradetype(),
 						newTrade.getFaceValue(), newTrade.getCouponRate(), newTrade.getCouponpaymentdate(),
@@ -293,10 +358,12 @@ public class TradeService {
 				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		} else {
-			return new ResponseEntity<>(null);
+			System.out.println("NOT ALLOWE DUE TO LACK OF FUNDS");
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
+
 
 	public void deleteDB(List<Trade> tradelist) {
 
@@ -304,3 +371,4 @@ public class TradeService {
 	}
 
 }
+
