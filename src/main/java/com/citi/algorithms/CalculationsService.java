@@ -21,7 +21,7 @@ public class CalculationsService {
 	Logger logger = LoggerFactory.getLogger(CalculationsService.class);
 
 //COUPON INCOME CALCULATION FUNCTION
-	public Map<String, Double> Couponincome(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) {
+	public Map<String, Double> Couponincome(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) { 
 
 		logger.debug("############# INSIDE COUPON INCOME CALCULATION FUNCTION #############");
 
@@ -94,7 +94,7 @@ public class CalculationsService {
 	}
 
 //ACCRUED COUPON INCOME CALCULATION FUNCTION
-	public Map<String, Double> Accruedcouponincome(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) {
+	public Map<String, Double> Accruedcouponincome(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) { 
 
 		logger.debug("############# INSIDE ACCRUED COUPON INCOME CALCULATION FUNCTION #############");
 
@@ -139,9 +139,12 @@ public class CalculationsService {
 						bonusqty = bonusqty - trade.getQuantity();
 					}
 				}
+				
 				if (trade.getSecurityname().equalsIgnoreCase(securityname)) {
 					String tradetype = trade.getTradetype();
+					
 					if (tradetype.equalsIgnoreCase("buy")) {
+						
 						if (trade.getDate().after(currentsecurity.getCouponpaymentdate())) {
 							String dcc = currentsecurity.getDcc();
 							GregorianCalendar yearend = new GregorianCalendar(2020, 11, 31);
@@ -173,6 +176,7 @@ public class CalculationsService {
 							qty = qty + trade.getQuantity();
 						}
 					}
+					
 					if (tradetype.equalsIgnoreCase("sell")) {
 						if (trade.getDate().after(currentsecurity.getCouponpaymentdate())) {
 							sellqty = sellqty + trade.getQuantity();
@@ -184,6 +188,8 @@ public class CalculationsService {
 				}
 				j++;
 			}
+			
+			
 			if (currentsecurity.getCouponpaymentdate() != null) {
 				String dcc = currentsecurity.getDcc();
 				GregorianCalendar coupondate = currentsecurity.getCouponpaymentdate();
@@ -224,7 +230,7 @@ public class CalculationsService {
 	}
 
 //PROFIT AND LOSS CALCULATION FUNCTION
-	public Map<String, Double> PLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb,
+	public Map<String, Double> PLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb, 
 			GregorianCalendar entereddate) {
 
 		logger.debug("############# INSIDE PROFIT AND LOSS CALCULATION FUNCTION #############");
@@ -273,7 +279,7 @@ public class CalculationsService {
 							avgbuypricehere = (avgbuypricehere * (qtyhere - trade.getQuantity())
 									+ (trade.getQuantity() * trade.getPrice())) / (qtyhere);
 							System.out.println("buy");
-//System.out.println("avgprice" + avgbuypricehere);
+							//System.out.println("avgprice" + avgbuypricehere);
 							System.out.println("qtyhere" + qtyhere);
 							System.out.println("avgprice" + avgbuypricehere);
 						}
@@ -296,7 +302,7 @@ public class CalculationsService {
 	}
 
 //UNREALIZED PROFIT AND LOSS CALCULATION FUNCTION
-	public Map<String, Double> UPLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) {
+	public Map<String, Double> UPLpersecurity(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) { 
 
 		logger.debug("############# INSIDE UNREALIZED PROFIT AND LOSS CALCULATION FUNCTION #############");
 
@@ -363,7 +369,7 @@ public class CalculationsService {
 	}
 
 //CLOSING FUND CALCULATION FUNCTION
-	public double Closingfund(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb, GregorianCalendar gc) {
+	public double Closingfund(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb, GregorianCalendar gc) {  
 
 		logger.debug("############# INSIDE CLOSING FUND CALCULATION FUNCTION #############");
 
@@ -410,7 +416,7 @@ public class CalculationsService {
 	}
 
 //INSIDE MARKET VALUATION FUNCTION
-	public double MarketValuation(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) {
+	public double MarketValuation(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) { 
 
 		logger.debug("############# INSIDE MARKET VALUATION FUNCTION #############");
 
@@ -472,7 +478,7 @@ public class CalculationsService {
 	}
 
 //CLOSING QUANTITY OF SECURITIES CALCULATION FUNCTION
-	public Map<String, Integer> getClosingQty(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) {
+	public Map<String, Integer> getClosingQty(List<Trade> tradelist, List<FixedIncomeSecurity> masterdb) { 
 
 		logger.debug("############# INSIDE CLOSING QUANTITY OF SECURITIES CALCULATION FUNCTION #############");
 
@@ -492,9 +498,7 @@ public class CalculationsService {
 			FixedIncomeSecurity currentsecurity = masterdb.get(i);
 			String securityname = currentsecurity.getSecurityname();
 			int netqty = currentsecurity.getOpeningqty();
-			int
-
-			qty = 0;
+			int qty = 0;
 			int bonusqty = 0;
 			if (securityname.equals(bonussecurity)) {
 				bonusqty = currentsecurity.getOpeningqty();
